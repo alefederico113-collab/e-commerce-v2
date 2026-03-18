@@ -81,6 +81,7 @@ async function loadAdminProducts() {
             <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.5rem;">
                 <button class="btn ghost update-stock-btn">Aggiorna stock</button>
                 <button class="btn ghost update-discount-btn">Aggiorna sconto</button>
+                <button class="btn ghost edit-product-btn">Modifica prodotto</button>
             </div>
         </article>
     `).join('');
@@ -132,6 +133,42 @@ async function loadAdminProducts() {
             }
         });
     });
+
+    list.querySelectorAll('.edit-product-btn').forEach((btn) => {
+        btn.addEventListener('click', (event) => {
+            const card = event.target.closest('[data-id]');
+            const productId = Number(card.dataset.id);
+            const product = products.find(p => p.id === productId);
+            if (product) {
+                populateEditForm(product);
+            }
+        });
+    });
+}
+
+function populateEditForm(product) {
+    document.getElementById('p-name').value = product.name;
+    document.getElementById('p-description').value = product.description;
+    document.getElementById('p-category').value = product.category;
+    document.getElementById('p-image').value = product.image_url || '';
+    document.getElementById('p-price').value = product.price;
+    document.getElementById('p-stock').value = product.stock;
+    document.getElementById('p-discount').value = product.discount_percent;
+
+    const form = document.getElementById('add-product-form');
+    form.dataset.editId = product.id;
+    form.querySelector('button[type="submit"]').textContent = 'Aggiorna prodotto';
+    form.insertAdjacentHTML('afterend', '<button id="cancel-edit-btn" class="btn ghost" type="button">Annulla modifica</button>');
+    document.getElementById('cancel-edit-btn').addEventListener('click', resetForm);
+}
+
+function resetForm() {
+    const form = document.getElementById('add-product-form');
+    form.reset();
+    delete form.dataset.editId;
+    form.querySelector('button[type="submit"]').textContent = 'Crea prodotto';
+    const cancelBtn = document.getElementById('cancel-edit-btn');
+    if (cancelBtn) cancelBtn.remove();
 }
 
 async function createProduct(event) {
@@ -147,13 +184,24 @@ async function createProduct(event) {
         discount_percent: Number(document.getElementById('p-discount').value)
     };
 
+    const form = event.target;
+    const editId = form.dataset.editId;
+
     try {
-        await apiFetch('/admin/products', {
-            method: 'POST',
-            body: JSON.stringify(payload)
-        }, true);
-        showStatus('Prodotto creato.', 'success');
-        event.target.reset();
+        if (editId) {
+            await apiFetch(`/admin/products/${editId}`, {
+                method: 'PATCH',
+                body: JSON.stringify(payload)
+            }, true);
+            showStatus('Prodotto aggiornato.', 'success');
+        } else {
+            await apiFetch('/admin/products', {
+                method: 'POST',
+                body: JSON.stringify(payload)
+            }, true);
+            showStatus('Prodotto creato.', 'success');
+        }
+        resetForm();
         await loadAdminProducts();
         await loadMetrics();
     } catch (error) {

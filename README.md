@@ -5,6 +5,11 @@ Repository unica per progetto e-commerce con:
 - Frontend statico deployabile su GitHub Pages
 - Database su Supabase con persistenza reale
 
+## Link live
+
+- Backend health: https://e-commerce-v2-k1bl.onrender.com/api/health
+- Frontend (GitHub Pages): https://alefederico113-collab.github.io/e-commerce-v2/
+
 ## Struttura repository
 
 ```text

@@ -44,7 +44,13 @@ async function initHome() {
     renderHeader('home');
 
     const user = getCurrentUser();
+    const quickPanel = document.getElementById('quick-account-panel');
     const quick = document.getElementById('quick-user');
+
+    if (quickPanel) {
+        quickPanel.style.display = user ? 'none' : '';
+    }
+
     if (quick && user) {
         quick.textContent = `${user.name} (${user.role}) - crediti: ${user.credits}`;
     }

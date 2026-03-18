@@ -21,10 +21,28 @@ Piattaforma e-commerce completa con backend API su Render, frontend statico su G
 - Gestione admin di:
   - prodotti
   - stock
-  - sconti
+    database/
+      schema.sql
+    src/
+      server.js
   - stato ordini
   - crediti utenti
+    package-lock.json
   - import catalogo tech da endpoint dedicato
+    assets/
+      css/
+        style.css
+      js/
+        admin.js
+        app.js
+        cart.js
+        common.js
+        config.js
+        login.js
+        orders.js
+        product.js
+        search.js
+        signup.js
 
 ## Demo credentials
 
@@ -33,17 +51,8 @@ Credenziali seed incluse nello schema DB:
 - Admin
   - email: `admin@ecommerce.local`
   - password: `Admin123!`
-- Customer
-  - email: `user@ecommerce.local`
-  - password: `User12345!`
-
-Puoi usare queste credenziali per testare dashboard admin e flusso acquisto.
-
-## Struttura repository
-
-```text
-backend/
-  database/schema.sql
+  docs/
+    STRUCTURE.md
   .env.example
   package.json
   server.js
@@ -96,7 +105,7 @@ Configura `.env` con valori reali Supabase e JWT.
 
 ### Frontend
 
-Aggiorna `frontend/config.js` con API locale:
+Aggiorna `frontend/assets/js/config.js` con API locale:
 
 ```js
 window.APP_CONFIG = {
@@ -132,7 +141,7 @@ Poi apri `frontend/index.html` tramite browser o Live Server.
 1. Settings -> Pages.
 2. Source: Deploy from a branch.
 3. Branch: `main`, folder: `/frontend`.
-4. In `frontend/config.js` imposta URL Render:
+4. In `frontend/assets/js/config.js` imposta URL Render:
    - `https://e-commerce-v2-k1bl.onrender.com/api`
 
 ## API principali

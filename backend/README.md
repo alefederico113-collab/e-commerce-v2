@@ -2,6 +2,18 @@
 
 Backend Express per il progetto e-commerce.
 
+## Struttura
+
+```text
+backend/
+	database/
+		schema.sql
+	src/
+		server.js
+	.env.example
+	package.json
+```
+
 ## Avvio rapido
 
 ```bash

@@ -670,6 +670,21 @@ app.delete('/api/admin/products/:id', authRequired, adminRequired, async (req, r
         return res.status(400).json({ error: 'Invalid product id.' });
     }
 
+    // Check if product is referenced in any orders
+    const { data: orderItems, error: checkError } = await supabase
+        .from('order_items')
+        .select('id')
+        .eq('product_id', productId)
+        .limit(1);
+
+    if (checkError) {
+        return res.status(500).json({ error: 'Database error while checking product usage.' });
+    }
+
+    if (orderItems && orderItems.length > 0) {
+        return res.status(400).json({ error: 'Cannot delete product that has been ordered. Remove from all orders first.' });
+    }
+
     const { error } = await supabase
         .from('products')
         .delete()

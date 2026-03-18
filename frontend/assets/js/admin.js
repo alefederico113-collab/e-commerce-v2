@@ -148,14 +148,12 @@ async function loadAdminProducts() {
 
     list.querySelectorAll('.delete-product-btn').forEach((btn) => {
         btn.addEventListener('click', async (event) => {
-            console.log('Delete button clicked');
             const card = event.target.closest('[data-id]');
             const productId = Number(card.dataset.id);
             const productName = card.querySelector('strong').textContent;
 
             if (confirm(`Sei sicuro di voler rimuovere "${productName}"? Questa azione non può essere annullata.`)) {
                 try {
-                    console.log('Deleting product', productId);
                     await apiFetch(`/admin/products/${productId}`, {
                         method: 'DELETE'
                     }, true);
@@ -163,7 +161,6 @@ async function loadAdminProducts() {
                     await loadAdminProducts();
                     await loadMetrics();
                 } catch (error) {
-                    console.error('Delete error:', error);
                     showStatus(error.message, 'error');
                 }
             }

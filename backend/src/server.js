@@ -664,6 +664,24 @@ app.patch('/api/admin/products/:id', authRequired, adminRequired, async (req, re
     return res.json({ message: 'Product updated.', product: buildProduct(data) });
 });
 
+app.delete('/api/admin/products/:id', authRequired, adminRequired, async (req, res) => {
+    const productId = Number(req.params.id);
+    if (!Number.isInteger(productId) || productId <= 0) {
+        return res.status(400).json({ error: 'Invalid product id.' });
+    }
+
+    const { error } = await supabase
+        .from('products')
+        .delete()
+        .eq('id', productId);
+
+    if (error) {
+        return res.status(500).json({ error: 'Database error while deleting product.' });
+    }
+
+    return res.json({ message: 'Product deleted.' });
+});
+
 app.post('/api/admin/import-tech-products', authRequired, adminRequired, async (req, res) => {
     const names = TECH_PRODUCTS.map((product) => product.name);
     const { data: existingProducts } = await supabase

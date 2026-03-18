@@ -82,6 +82,7 @@ async function loadAdminProducts() {
                 <button class="btn ghost update-stock-btn">Aggiorna stock</button>
                 <button class="btn ghost update-discount-btn">Aggiorna sconto</button>
                 <button class="btn ghost edit-product-btn">Modifica prodotto</button>
+                <button class="btn danger delete-product-btn">Rimuovi prodotto</button>
             </div>
         </article>
     `).join('');
@@ -141,6 +142,27 @@ async function loadAdminProducts() {
             const product = products.find(p => p.id === productId);
             if (product) {
                 populateEditForm(product);
+            }
+        });
+    });
+
+    list.querySelectorAll('.delete-product-btn').forEach((btn) => {
+        btn.addEventListener('click', async (event) => {
+            const card = event.target.closest('[data-id]');
+            const productId = Number(card.dataset.id);
+            const productName = card.querySelector('strong').textContent;
+
+            if (confirm(`Sei sicuro di voler rimuovere "${productName}"? Questa azione non può essere annullata.`)) {
+                try {
+                    await apiFetch(`/admin/products/${productId}`, {
+                        method: 'DELETE'
+                    }, true);
+                    showStatus('Prodotto rimosso.', 'success');
+                    await loadAdminProducts();
+                    await loadMetrics();
+                } catch (error) {
+                    showStatus(error.message, 'error');
+                }
             }
         });
     });

@@ -298,6 +298,15 @@ body {
     background: #ecf2ff;
 }
 
+.btn.danger {
+    color: #fff;
+    background: var(--err);
+}
+
+.btn.danger:hover {
+    background: #c92a2a;
+}
+
 .pill {
     display: inline-flex;
     align-items: center;

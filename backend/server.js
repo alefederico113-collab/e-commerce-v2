@@ -23,6 +23,18 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
 app.use(cors({ origin: FRONTEND_ORIGIN === '*' ? true : FRONTEND_ORIGIN }));
 app.use(express.json());
 
+app.get('/', (req, res) => {
+    res.json({
+        ok: true,
+        service: 'ecommerce-backend',
+        message: 'Backend is running. Use /api/health for health checks.'
+    });
+});
+
+app.get('/health', (req, res) => {
+    res.json({ ok: true, service: 'ecommerce-backend' });
+});
+
 app.get('/api/health', (req, res) => {
     res.json({ ok: true, service: 'ecommerce-backend' });
 });

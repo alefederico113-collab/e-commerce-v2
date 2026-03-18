@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campus Market - Store</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header class="topbar">
+        <h1>Campus Market</h1>
+        <nav>
+            <a href="admin.html">Area Admin</a>
+        </nav>
+    </header>
+
+    <main class="container">
+        <section class="hero">
+            <h2>Store Studente</h2>
+            <p>Acquista prodotti usando i crediti assegnati dal backend.</p>
+            <div class="user-pill">
+                Utente: <strong id="user-name">-</strong>
+                <span>Saldo: <strong id="user-credits">0</strong> crediti</span>
+            </div>
+        </section>
+
+        <p id="status-message" class="status-message info">Caricamento dati...</p>
+
+        <section id="product-grid" class="grid-container"></section>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Campus Market - Progetto E-Commerce</p>
+    </footer>
+
+    <script src="config.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,20 @@
+[
+  {
+    "id": 101,
+    "name": "T-shirt",
+    "price": 20,
+    "stock": 4
+  },
+  {
+    "id": 102,
+    "name": "Mug",
+    "price": 8,
+    "stock": 21
+  },
+  {
+    "id": 1773266487490,
+    "name": "maglietta",
+    "price": 7,
+    "stock": 4
+  }
+]

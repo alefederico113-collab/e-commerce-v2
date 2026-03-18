@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campus Market - Admin</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="topbar">
+        <h1>Campus Market Admin</h1>
+        <nav><a href="index.html">Vai allo Store</a></nav>
+    </header>
+
+    <main class="container admin-container">
+        <p id="admin-message" class="status-message info">Pannello amministrazione pronto.</p>
+
+        <section class="admin-card">
+            <h2>Assegna Crediti Bonus</h2>
+            <form id="add-credits-form" class="form-grid">
+                <input type="number" id="bonus-user-id" min="1" placeholder="User ID (es. 1)" required>
+                <input type="number" id="bonus-amount" min="1" placeholder="Crediti da aggiungere" required>
+                <button type="submit">Invia Crediti</button>
+            </form>
+        </section>
+
+        <section class="admin-card">
+            <h2>Nuovo Prodotto</h2>
+            <form id="add-product-form" class="form-grid">
+                <input type="text" id="p-name" placeholder="Nome prodotto">
+                <input type="number" id="p-price" min="0" placeholder="Prezzo" required>
+                <input type="number" id="p-stock" min="0" placeholder="Quantità" required>
+                <button type="submit" class="btn-add">Aggiungi al Catalogo</button>
+            </form>
+        </section>
+
+        <section class="admin-card">
+            <h2>Gestione Magazzino</h2>
+            <ul id="inventory-list"><li>Caricamento inventario...</li></ul>
+        </section>
+    </main>
+    <script src="config.js"></script>
+    <script src="admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+[
+  {
+    "id": 1,
+    "name": "Mouse Gaming",
+    "price": 50,
+    "stock": 5
+  },
+  {
+    "id": 2,
+    "name": "Tastiera RGB",
+    "price": 80,
+    "stock": 3
+  }
+]

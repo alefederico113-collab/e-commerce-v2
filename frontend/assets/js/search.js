@@ -21,8 +21,8 @@ function renderResults(products) {
       </div>
     `;
 
-    card.querySelector('button')?.addEventListener('click', () => {
-      addToCart(product, 1);
+    card.querySelector('button')?.addEventListener('click', (event) => {
+      addToCart(product, 1, event.currentTarget);
       showStatus('Aggiunto al carrello.', 'success');
     });
 

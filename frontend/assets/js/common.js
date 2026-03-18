@@ -32,7 +32,46 @@ function saveCart(cart) {
     renderHeader();
 }
 
-function addToCart(product, quantity = 1) {
+function animateCartAdd(sourceEl = null) {
+    const cartLink = document.querySelector('.main-nav a[href="cart.html"]');
+    const cartPill = cartLink?.querySelector('.pill');
+    const targetEl = cartPill || cartLink;
+
+    if (!targetEl) {
+        return;
+    }
+
+    targetEl.classList.remove('cart-pill-bump');
+    void targetEl.offsetWidth;
+    targetEl.classList.add('cart-pill-bump');
+
+    if (!sourceEl || !sourceEl.getBoundingClientRect) {
+        return;
+    }
+
+    const from = sourceEl.getBoundingClientRect();
+    const to = targetEl.getBoundingClientRect();
+
+    const dot = document.createElement('span');
+    dot.className = 'cart-fly-dot';
+    dot.style.left = `${from.left + from.width / 2}px`;
+    dot.style.top = `${from.top + from.height / 2}px`;
+    document.body.appendChild(dot);
+
+    const deltaX = (to.left + to.width / 2) - (from.left + from.width / 2);
+    const deltaY = (to.top + to.height / 2) - (from.top + from.height / 2);
+
+    requestAnimationFrame(() => {
+        dot.style.transform = `translate(${deltaX}px, ${deltaY}px) scale(0.55)`;
+        dot.style.opacity = '0.18';
+    });
+
+    setTimeout(() => {
+        dot.remove();
+    }, 650);
+}
+
+function addToCart(product, quantity = 1, sourceEl = null) {
     const cart = getCart();
     const existing = cart.find((item) => item.product_id === product.id);
     if (existing) {
@@ -47,6 +86,7 @@ function addToCart(product, quantity = 1) {
         });
     }
     saveCart(cart);
+    animateCartAdd(sourceEl);
 }
 
 function cartCount() {

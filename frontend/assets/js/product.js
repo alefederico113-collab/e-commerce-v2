@@ -41,8 +41,8 @@ function renderProduct(product) {
     </div>
   `;
 
-  document.getElementById('add-cart-btn')?.addEventListener('click', () => {
-    addToCart(product, 1);
+  document.getElementById('add-cart-btn')?.addEventListener('click', (event) => {
+    addToCart(product, 1, event.currentTarget);
     showStatus('Prodotto aggiunto al carrello.', 'success');
   });
 }

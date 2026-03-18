@@ -31,7 +31,7 @@ async function loadHomeProducts() {
 
         const addBtn = card.querySelector('button');
         addBtn?.addEventListener('click', () => {
-            addToCart(product, 1);
+            addToCart(product, 1, addBtn);
             showStatus('Prodotto aggiunto al carrello.', 'success');
         });
 

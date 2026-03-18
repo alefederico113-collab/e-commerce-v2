@@ -8,7 +8,10 @@ function renderResults(products) {
     card.innerHTML = `
       <img src="${product.image_url || 'https://placehold.co/640x360?text=Tech+Product'}" alt="${product.name}">
       <div class="product-body">
-        <h4 class="product-title">${product.name}</h4>
+        <div class="product-header">
+          <h4 class="product-title">${product.name}</h4>
+          ${isNewProduct(product) ? '<span class="new-badge">Nuovo</span>' : ''}
+        </div>
         <p class="muted">${product.description.slice(0, 95)}...</p>
         <div class="product-meta">
           <span class="new-price">${formatPrice(product.final_price)}</span>

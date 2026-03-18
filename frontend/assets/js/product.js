@@ -22,7 +22,10 @@ function renderProduct(product) {
     <div class="product-detail">
       <img src="${product.image_url || 'https://placehold.co/900x600?text=Product'}" alt="${product.name}">
       <div>
-        <h2 style="margin-top:0;font-family:Syne,sans-serif;">${product.name}</h2>
+        <div class="product-header">
+          <h2 style="margin-top:0;font-family:Syne,sans-serif;">${product.name}</h2>
+          ${isNewProduct(product) ? '<span class="new-badge">Nuovo</span>' : ''}
+        </div>
         <p class="muted">${product.category || 'Tech'}</p>
         <p>${product.description || 'Nessuna descrizione disponibile.'}</p>
         <div class="product-meta">

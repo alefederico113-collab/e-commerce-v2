@@ -89,6 +89,14 @@ function addToCart(product, quantity = 1, sourceEl = null) {
     animateCartAdd(sourceEl);
 }
 
+function isNewProduct(product) {
+    if (!product.created_at) return false;
+    const created = new Date(product.created_at);
+    const now = new Date();
+    const diffDays = (now - created) / (1000 * 60 * 60 * 24);
+    return diffDays <= 7; // Consider new if created within 7 days
+}
+
 function cartCount() {
     return getCart().reduce((sum, item) => sum + item.quantity, 0);
 }

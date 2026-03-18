@@ -246,8 +246,8 @@ app.get('/api/products', async (req, res) => {
 
     let query = supabase
         .from('products')
-        .select('id, name, description, category, image_url, price, discount_percent, stock')
-        .order('id', { ascending: true });
+        .select('id, name, description, category, image_url, price, discount_percent, stock, created_at')
+        .order('created_at', { ascending: false });
 
     if (search) {
         query = query.or(`name.ilike.%${search}%,description.ilike.%${search}%,category.ilike.%${search}%`);

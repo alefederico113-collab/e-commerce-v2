@@ -1,14 +1,43 @@
 # Compito E-Commerce
 
-Repository unica per progetto e-commerce con:
-- Backend Node.js + Express deployabile su Render
-- Frontend statico deployabile su GitHub Pages
-- Database su Supabase con persistenza reale
+Piattaforma e-commerce completa con backend API su Render, frontend statico su GitHub Pages e database relazionale su Supabase.
 
 ## Link live
 
-- Backend health: https://e-commerce-v2-k1bl.onrender.com/api/health
+- Backend: https://e-commerce-v2-k1bl.onrender.com
+- Health API: https://e-commerce-v2-k1bl.onrender.com/api/health
 - Frontend (GitHub Pages): https://alefederico113-collab.github.io/e-commerce-v2/
+
+## Funzionalita principali
+
+- UI completamente ridisegnata e responsive
+- Autenticazione sicura con signup/login/signout
+- Password cifrate con bcrypt + sessione JWT
+- Ricerca prodotti e pagine dettaglio prodotto
+- Recensioni con rating (1-5)
+- Carrello lato frontend e checkout reale lato backend
+- Storico ordini utente con stato ordine
+- Dashboard admin protetta (solo ruolo admin)
+- Gestione admin di:
+  - prodotti
+  - stock
+  - sconti
+  - stato ordini
+  - crediti utenti
+  - import catalogo tech da endpoint dedicato
+
+## Demo credentials
+
+Credenziali seed incluse nello schema DB:
+
+- Admin
+  - email: `admin@ecommerce.local`
+  - password: `Admin123!`
+- Customer
+  - email: `user@ecommerce.local`
+  - password: `User12345!`
+
+Puoi usare queste credenziali per testare dashboard admin e flusso acquisto.
 
 ## Struttura repository
 
@@ -20,8 +49,21 @@ backend/
   server.js
 frontend/
   index.html
+  search.html
+  product.html
+  cart.html
+  orders.html
+  login.html
+  signup.html
   admin.html
+  common.js
   app.js
+  search.js
+  product.js
+  cart.js
+  orders.js
+  login.js
+  signup.js
   admin.js
   config.js
   style.css
@@ -30,25 +72,16 @@ render.yaml
 README.md
 ```
 
-## Funzionalita
-
-- Vista store con prodotti caricati da API
-- Acquisto reale (`/api/buy`) con controllo crediti e stock
-- Pannello admin per:
-  - aggiungere prodotti
-  - aggiornare stock
-  - assegnare crediti utenti
-- Endpoint salute backend: `/api/health`
-
-## 1) Setup database (Supabase)
+## Setup database (Supabase)
 
 1. Crea un progetto Supabase.
-2. Apri SQL Editor e incolla il contenuto di `backend/database/schema.sql`.
-3. Salva i valori:
+2. Apri SQL Editor.
+3. Esegui `backend/database/schema.sql`.
+4. Salva:
    - `SUPABASE_URL`
-   - `SUPABASE_SERVICE_ROLE_KEY` (segreta)
+   - `SUPABASE_SERVICE_ROLE_KEY`
 
-## 2) Avvio locale
+## Avvio locale
 
 ### Backend
 
@@ -59,56 +92,72 @@ npm install
 npm start
 ```
 
-Compila `.env` con i valori reali di Supabase.
+Configura `.env` con valori reali Supabase e JWT.
 
 ### Frontend
 
-Apri `frontend/index.html` in browser o con Live Server.
+Aggiorna `frontend/config.js` con API locale:
 
-Prima modifica `frontend/config.js` e imposta:
-- `API_URL` su `http://localhost:3000/api` per locale
-- `DEFAULT_USER_ID` (es. `1`)
+```js
+window.APP_CONFIG = {
+  API_URL: 'http://localhost:3000/api'
+};
+```
 
-## 3) Deploy backend su Render
+Poi apri `frontend/index.html` tramite browser o Live Server.
 
-1. Pusha repository su GitHub.
-2. Su Render crea servizio Web da repository.
-3. Root directory: `backend` (oppure usa `render.yaml`).
-4. Build command: `npm install`
-5. Start command: `npm start`
-6. Aggiungi env variables in Render:
-   - `SUPABASE_URL`
-   - `SUPABASE_SERVICE_ROLE_KEY`
-   - `FRONTEND_ORIGIN=https://TUO-USERNAME.github.io`
-7. Deploy e verifica `https://...onrender.com/api/health`
+## Variabili ambiente backend
 
-## 4) Deploy frontend su GitHub Pages
+- `PORT`
+- `FRONTEND_ORIGIN`
+- `SUPABASE_URL`
+- `SUPABASE_SERVICE_ROLE_KEY`
+- `JWT_SECRET`
+- `JWT_EXPIRES_IN`
 
-1. In GitHub vai su Settings -> Pages.
+## Deploy backend su Render
+
+1. Collega repository a Render.
+2. Root directory: `backend` (oppure usa `render.yaml`).
+3. Build command: `npm install`
+4. Start command: `npm start`
+5. Imposta env vars (incluse JWT).
+6. Verifica:
+   - `/`
+   - `/health`
+   - `/api/health`
+
+## Deploy frontend su GitHub Pages
+
+1. Settings -> Pages.
 2. Source: Deploy from a branch.
 3. Branch: `main`, folder: `/frontend`.
-4. In `frontend/config.js` imposta `API_URL` con URL Render:
-   - `https://NOME-SERVIZIO.onrender.com/api`
-5. Apri URL Pages e testa store/admin.
-
-## Sicurezza
-
-- `.env` e file sensibili non vanno nel repository grazie a `.gitignore`.
-- Non pubblicare mai `SUPABASE_SERVICE_ROLE_KEY`.
-- Nel tuo progetto la chiave Supabase era hardcoded in passato: ruotala da dashboard Supabase prima del deploy definitivo.
+4. In `frontend/config.js` imposta URL Render:
+   - `https://e-commerce-v2-k1bl.onrender.com/api`
 
 ## API principali
 
 - `GET /api/health`
-- `GET /api/products`
-- `GET /api/users/:id`
-- `POST /api/buy` body: `{ "userId": 1, "productId": 2 }`
-- `POST /api/admin/products` body: `{ "name": "Prodotto", "price": 20, "stock": 3 }`
-- `PUT /api/admin/products/:id` body: `{ "stock": 10 }`
-- `POST /api/admin/users/:id/credits` body: `{ "amount": 50 }`
+- `GET /api/tech-products`
+- `POST /api/auth/signup`
+- `POST /api/auth/login`
+- `GET /api/auth/me`
+- `GET /api/products?search=...`
+- `GET /api/products/:id`
+- `POST /api/products/:id/reviews`
+- `POST /api/cart/checkout`
+- `GET /api/orders`
+- `GET /api/admin/dashboard`
+- `GET /api/admin/orders`
+- `PATCH /api/admin/orders/:id/status`
+- `POST /api/admin/products`
+- `PATCH /api/admin/products/:id`
+- `POST /api/admin/import-tech-products`
+- `POST /api/admin/users/:id/credits`
 
-## Stato progetto
+## Sicurezza
 
-- Struttura repository pronta per consegna GitHub.
-- Backend e frontend allineati alla stessa API.
-- Configurazione deploy Render + GitHub Pages documentata.
+- Nessun secret nel repository.
+- `.env` ignorato da git.
+- Password hashate con bcrypt.
+- Rotazione consigliata per chiavi Supabase e JWT in produzione.

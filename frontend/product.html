@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TechVerse Market | Prodotto</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="site-header"></div>
+  <main class="page">
+    <section id="product-container" class="panel">Caricamento prodotto...</section>
+    <section class="panel" style="margin-top:1rem;">
+      <h3>Recensioni</h3>
+      <div id="reviews" class="review-list"></div>
+    </section>
+    <section class="panel" style="margin-top:1rem;">
+      <h3>Lascia una recensione</h3>
+      <form id="review-form" class="form-grid">
+        <select id="review-rating" required>
+          <option value="">Valutazione</option>
+          <option value="5">5 - Eccellente</option>
+          <option value="4">4 - Ottimo</option>
+          <option value="3">3 - Buono</option>
+          <option value="2">2 - Sufficiente</option>
+          <option value="1">1 - Scarso</option>
+        </select>
+        <textarea id="review-comment" rows="3" placeholder="Scrivi la tua recensione..."></textarea>
+        <button class="btn" type="submit">Pubblica recensione</button>
+      </form>
+      <p id="status-box" class="status info">Effettua il login per inserire una recensione.</p>
+    </section>
+  </main>
+  <script src="config.js"></script>
+  <script src="common.js"></script>
+  <script src="product.js"></script>
+</body>
+</html>

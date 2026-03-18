@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TechVerse Market | Carrello</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="site-header"></div>
+  <main class="page">
+    <section class="panel">
+      <h2 style="font-family:Syne,sans-serif;margin-top:0;">Carrello</h2>
+      <div id="cart-items"></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:1rem;gap:.8rem;flex-wrap:wrap;">
+        <strong id="cart-total">Totale: 0 crediti</strong>
+        <div style="display:flex;gap:.5rem;">
+          <button id="clear-cart-btn" class="btn ghost">Svuota</button>
+          <button id="checkout-btn" class="btn">Checkout</button>
+        </div>
+      </div>
+      <p id="status-box" class="status info">Aggiungi prodotti per procedere all'ordine.</p>
+    </section>
+  </main>
+  <script src="config.js"></script>
+  <script src="common.js"></script>
+  <script src="cart.js"></script>
+</body>
+</html>

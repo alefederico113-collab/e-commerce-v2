@@ -1,161 +1,226 @@
-const API_URL = window.APP_CONFIG?.API_URL || 'http://localhost:3000/api';
+function asInt(value) {
+    const n = Number(value);
+    return Number.isInteger(n) ? n : null;
+}
 
-function showAdminMessage(message, type = 'success') {
-    const box = document.getElementById('admin-message');
-    if (!box) {
+function renderMetrics(metrics) {
+    document.getElementById('metric-users').textContent = metrics.users;
+    document.getElementById('metric-products').textContent = metrics.products;
+    document.getElementById('metric-orders').textContent = metrics.orders;
+    document.getElementById('metric-pending').textContent = metrics.pending_orders;
+}
+
+function orderStatusOptions(selected) {
+    const values = ['pending', 'processing', 'shipped', 'delivered', 'cancelled'];
+    return values.map((value) => `<option value="${value}" ${value === selected ? 'selected' : ''}>${value}</option>`).join('');
+}
+
+async function loadAdminOrders() {
+    const orders = await apiFetch('/admin/orders', {}, true);
+    const list = document.getElementById('admin-orders-list');
+
+    if (orders.length === 0) {
+        list.innerHTML = '<p class="muted">Nessun ordine disponibile.</p>';
         return;
     }
 
-    box.textContent = message;
-    box.className = `status-message ${type}`;
-}
+    list.innerHTML = orders.map((order) => `
+        <article class="order-item" data-id="${order.id}">
+            <div style="display:flex;justify-content:space-between;gap:.8rem;flex-wrap:wrap;">
+                <strong>Ordine #${order.id}</strong>
+                <span class="pill">${order.status}</span>
+            </div>
+            <p class="muted">${new Date(order.created_at).toLocaleString('it-IT')} · ${order.user?.name || 'Utente'} (${order.user?.email || 'n/a'})</p>
+            <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
+                <select class="input status-select">${orderStatusOptions(order.status)}</select>
+                <button class="btn ghost update-order-btn">Aggiorna stato</button>
+            </div>
+        </article>
+    `).join('');
 
-function parsePositiveInt(value) {
-    const parsed = Number(value);
-    if (!Number.isInteger(parsed) || parsed < 0) {
-        return null;
-    }
-    return parsed;
-}
+    list.querySelectorAll('.update-order-btn').forEach((btn) => {
+        btn.addEventListener('click', async (event) => {
+            const card = event.target.closest('[data-id]');
+            const orderId = Number(card.dataset.id);
+            const status = card.querySelector('.status-select').value;
 
-async function loadInventory() {
-    try {
-        const response = await fetch(`${API_URL}/products`);
-        const products = await response.json();
-
-        if (!response.ok) {
-            throw new Error(products.error || 'Errore caricamento inventario.');
-        }
-
-        const list = document.getElementById('inventory-list');
-        if (!list) {
-            return;
-        }
-
-        list.innerHTML = '';
-        products.forEach((product) => {
-            const item = document.createElement('li');
-            item.className = 'inventory-item';
-            item.innerHTML = `
-                <div>
-                    <strong>${product.name}</strong><br>
-                    <span>${product.price} crediti - stock: ${product.stock}</span>
-                </div>
-                <form class="stock-form" data-product-id="${product.id}">
-                    <input type="number" min="0" value="${product.stock}" required>
-                    <button type="submit">Aggiorna stock</button>
-                </form>
-            `;
-
-            const form = item.querySelector('.stock-form');
-            form?.addEventListener('submit', async (event) => {
-                event.preventDefault();
-                const input = form.querySelector('input');
-                const stock = parsePositiveInt(input?.value);
-                if (stock === null) {
-                    showAdminMessage('Stock non valido.', 'error');
-                    return;
-                }
-                await updateStock(product.id, stock);
-            });
-
-            list.appendChild(item);
+            try {
+                await apiFetch(`/admin/orders/${orderId}/status`, {
+                    method: 'PATCH',
+                    body: JSON.stringify({ status })
+                }, true);
+                showStatus('Stato ordine aggiornato.', 'success');
+                await loadAdminOrders();
+            } catch (error) {
+                showStatus(error.message, 'error');
+            }
         });
-    } catch (error) {
-        showAdminMessage(error.message, 'error');
-    }
+    });
 }
 
-async function updateStock(productId, stock) {
-    try {
-        const response = await fetch(`${API_URL}/admin/products/${productId}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ stock })
+async function loadAdminProducts() {
+    const products = await apiFetch('/products');
+    const list = document.getElementById('products-admin-list');
+
+    if (products.length === 0) {
+        list.innerHTML = '<p class="muted">Nessun prodotto presente.</p>';
+        return;
+    }
+
+    list.innerHTML = products.map((product) => `
+        <article class="order-item" data-id="${product.id}">
+            <div style="display:flex;justify-content:space-between;gap:.8rem;flex-wrap:wrap;">
+                <strong>${product.name}</strong>
+                <span class="pill">${formatPrice(product.final_price)}</span>
+            </div>
+            <p class="muted">Categoria: ${product.category || 'Tech'} · Stock: ${product.stock} · Sconto: ${product.discount_percent}%</p>
+            <div style="display:grid;grid-template-columns:repeat(2,minmax(120px,1fr));gap:.5rem;">
+                <input class="input stock-input" type="number" min="0" step="1" value="${product.stock}">
+                <input class="input discount-input" type="number" min="0" max="90" step="1" value="${product.discount_percent}">
+            </div>
+            <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.5rem;">
+                <button class="btn ghost update-stock-btn">Aggiorna stock</button>
+                <button class="btn ghost update-discount-btn">Aggiorna sconto</button>
+            </div>
+        </article>
+    `).join('');
+
+    list.querySelectorAll('.update-stock-btn').forEach((btn) => {
+        btn.addEventListener('click', async (event) => {
+            const card = event.target.closest('[data-id]');
+            const productId = Number(card.dataset.id);
+            const stock = asInt(card.querySelector('.stock-input').value);
+
+            if (stock === null || stock < 0) {
+                showStatus('Stock non valido.', 'error');
+                return;
+            }
+
+            try {
+                await apiFetch(`/admin/products/${productId}`, {
+                    method: 'PATCH',
+                    body: JSON.stringify({ stock })
+                }, true);
+                showStatus('Stock aggiornato.', 'success');
+                await loadAdminProducts();
+            } catch (error) {
+                showStatus(error.message, 'error');
+            }
         });
+    });
 
-        const data = await response.json();
-        if (!response.ok) {
-            throw new Error(data.error || 'Aggiornamento stock fallito.');
-        }
+    list.querySelectorAll('.update-discount-btn').forEach((btn) => {
+        btn.addEventListener('click', async (event) => {
+            const card = event.target.closest('[data-id]');
+            const productId = Number(card.dataset.id);
+            const discount = asInt(card.querySelector('.discount-input').value);
 
-        showAdminMessage('Stock aggiornato con successo.', 'success');
-        await loadInventory();
-    } catch (error) {
-        showAdminMessage(error.message, 'error');
-    }
+            if (discount === null || discount < 0 || discount > 90) {
+                showStatus('Sconto non valido (0-90).', 'error');
+                return;
+            }
+
+            try {
+                await apiFetch(`/admin/products/${productId}`, {
+                    method: 'PATCH',
+                    body: JSON.stringify({ discount_percent: discount })
+                }, true);
+                showStatus('Sconto aggiornato.', 'success');
+                await loadAdminProducts();
+            } catch (error) {
+                showStatus(error.message, 'error');
+            }
+        });
+    });
 }
 
-async function handleAddProduct(event) {
+async function createProduct(event) {
     event.preventDefault();
 
-    const name = String(document.getElementById('p-name')?.value || '').trim();
-    const price = parsePositiveInt(document.getElementById('p-price')?.value);
-    const stock = parsePositiveInt(document.getElementById('p-stock')?.value);
-
-    if (!name || price === null || stock === null) {
-        showAdminMessage('Compila correttamente tutti i campi prodotto.', 'error');
-        return;
-    }
+    const payload = {
+        name: document.getElementById('p-name').value.trim(),
+        description: document.getElementById('p-description').value.trim(),
+        category: document.getElementById('p-category').value.trim(),
+        image_url: document.getElementById('p-image').value.trim(),
+        price: Number(document.getElementById('p-price').value),
+        stock: Number(document.getElementById('p-stock').value),
+        discount_percent: Number(document.getElementById('p-discount').value)
+    };
 
     try {
-        const response = await fetch(`${API_URL}/admin/products`, {
+        await apiFetch('/admin/products', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name, price, stock })
-        });
-
-        const data = await response.json();
-        if (!response.ok) {
-            throw new Error(data.error || 'Creazione prodotto fallita.');
-        }
-
-        showAdminMessage('Prodotto creato con successo.', 'success');
+            body: JSON.stringify(payload)
+        }, true);
+        showStatus('Prodotto creato.', 'success');
         event.target.reset();
-        await loadInventory();
+        await loadAdminProducts();
+        await loadMetrics();
     } catch (error) {
-        showAdminMessage(error.message, 'error');
+        showStatus(error.message, 'error');
     }
 }
 
-async function handleAddCredits(event) {
+async function addCredits(event) {
     event.preventDefault();
+    const userId = asInt(document.getElementById('bonus-user-id').value);
+    const amount = asInt(document.getElementById('bonus-amount').value);
 
-    const userId = parsePositiveInt(document.getElementById('bonus-user-id')?.value);
-    const amount = parsePositiveInt(document.getElementById('bonus-amount')?.value);
-
-    if (userId === null || amount === null || amount <= 0) {
-        showAdminMessage('Inserisci user id e crediti validi.', 'error');
+    if (!userId || !amount || amount <= 0) {
+        showStatus('User ID e crediti devono essere validi.', 'error');
         return;
     }
 
     try {
-        const response = await fetch(`${API_URL}/admin/users/${userId}/credits`, {
+        await apiFetch(`/admin/users/${userId}/credits`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ amount })
-        });
-
-        const data = await response.json();
-        if (!response.ok) {
-            throw new Error(data.error || 'Assegnazione crediti fallita.');
-        }
-
-        showAdminMessage('Crediti assegnati con successo.', 'success');
+        }, true);
+        showStatus('Crediti aggiunti con successo.', 'success');
         event.target.reset();
     } catch (error) {
-        showAdminMessage(error.message, 'error');
+        showStatus(error.message, 'error');
     }
 }
 
-function initAdmin() {
-    const addProductForm = document.getElementById('add-product-form');
-    const addCreditsForm = document.getElementById('add-credits-form');
+async function loadMetrics() {
+    const metrics = await apiFetch('/admin/dashboard', {}, true);
+    renderMetrics(metrics);
+}
 
-    addProductForm?.addEventListener('submit', handleAddProduct);
-    addCreditsForm?.addEventListener('submit', handleAddCredits);
+async function importTechProducts() {
+    try {
+        const result = await apiFetch('/admin/import-tech-products', { method: 'POST' }, true);
+        showStatus(`${result.message} (${result.imported || 0})`, 'success');
+        await loadAdminProducts();
+        await loadMetrics();
+    } catch (error) {
+        showStatus(error.message, 'error');
+    }
+}
 
-    loadInventory();
+async function initAdmin() {
+    await refreshCurrentUser();
+    renderHeader('admin');
+
+    if (!ensureLoggedIn()) {
+        return;
+    }
+    if (!ensureAdmin()) {
+        return;
+    }
+
+    document.getElementById('add-product-form').addEventListener('submit', createProduct);
+    document.getElementById('add-credits-form').addEventListener('submit', addCredits);
+    document.getElementById('import-tech-btn').addEventListener('click', importTechProducts);
+    document.getElementById('refresh-products-btn').addEventListener('click', loadAdminProducts);
+
+    try {
+        await Promise.all([loadMetrics(), loadAdminOrders(), loadAdminProducts()]);
+        showStatus('Dashboard admin caricata.', 'success');
+    } catch (error) {
+        showStatus(error.message, 'error');
+    }
 }
 
 initAdmin();

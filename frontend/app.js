@@ -1,116 +1,60 @@
-const API_URL = window.APP_CONFIG?.API_URL || 'http://localhost:3000/api';
-const DEFAULT_USER_ID = window.APP_CONFIG?.DEFAULT_USER_ID || 1;
-
-let currentUser = null;
-
-function showMessage(message, type = 'success') {
-    const box = document.getElementById('status-message');
-    if (!box) {
-        return;
-    }
-
-    box.textContent = message;
-    box.className = `status-message ${type}`;
-}
-
-function setLoading(button, isLoading) {
-    if (!button) {
-        return;
-    }
-    button.disabled = isLoading;
-    button.dataset.originalText = button.dataset.originalText || button.textContent;
-    button.textContent = isLoading ? 'Attendere...' : button.dataset.originalText;
-}
-
-async function loadUser() {
-    const response = await fetch(`${API_URL}/users/${DEFAULT_USER_ID}`);
-    const data = await response.json();
-
-    if (!response.ok) {
-        throw new Error(data.error || 'Errore caricamento utente.');
-    }
-
-    currentUser = data;
-    const creditsElement = document.getElementById('user-credits');
-    const userNameElement = document.getElementById('user-name');
-
-    if (creditsElement) {
-        creditsElement.textContent = currentUser.credits;
-    }
-
-    if (userNameElement) {
-        userNameElement.textContent = currentUser.name;
-    }
-}
-
-async function loadProducts() {
-    const response = await fetch(`${API_URL}/products`);
-    const products = await response.json();
-
-    if (!response.ok) {
-        throw new Error(products.error || 'Errore caricamento prodotti.');
-    }
-
-    const grid = document.getElementById('product-grid');
-    if (!grid) {
-        return;
-    }
-
+async function loadHomeProducts() {
+    const products = await apiFetch('/products');
+    const grid = document.getElementById('products-grid');
     grid.innerHTML = '';
 
-    products.forEach((product) => {
+    products.slice(0, 8).forEach((product) => {
+        const stockClass = product.stock === 0 ? 'stock-out' : (product.stock < 5 ? 'stock-low' : 'stock-ok');
+        const stockText = product.stock === 0 ? 'Esaurito' : `${product.stock} disponibili`;
+
         const card = document.createElement('article');
         card.className = 'product-card';
-
-        const stockStatus = product.stock > 0 ? `${product.stock} disponibili` : 'Esaurito';
-
         card.innerHTML = `
-            <h3>${product.name}</h3>
-            <p class="price">${product.price} crediti</p>
-            <p class="stock ${product.stock > 0 ? 'in-stock' : 'out-of-stock'}">${stockStatus}</p>
-            <button class="buy-btn" data-product-id="${product.id}" ${product.stock <= 0 ? 'disabled' : ''}>Compra ora</button>
+            <img src="${product.image_url || 'https://placehold.co/640x360?text=Tech+Product'}" alt="${product.name}">
+            <div class="product-body">
+                <h4 class="product-title">${product.name}</h4>
+                <p class="muted">${product.category || 'Tech'}</p>
+                <div class="product-meta">
+                    <div class="price-stack">
+                        ${product.discount_percent > 0 ? `<span class="old-price">${formatPrice(product.price)}</span>` : ''}
+                        <span class="new-price">${formatPrice(product.final_price)}</span>
+                    </div>
+                    ${product.discount_percent > 0 ? `<span class="discount-tag">-${product.discount_percent}%</span>` : ''}
+                </div>
+                <div class="${stockClass}">${stockText}</div>
+                <div class="product-actions">
+                    <a class="btn ghost" href="product.html?id=${product.id}">Dettagli</a>
+                    <button class="btn" data-id="${product.id}" ${product.stock === 0 ? 'disabled' : ''}>Aggiungi</button>
+                </div>
+            </div>
         `;
 
-        const button = card.querySelector('.buy-btn');
-        button?.addEventListener('click', () => handleBuy(product.id, button));
+        const addBtn = card.querySelector('button');
+        addBtn?.addEventListener('click', () => {
+            addToCart(product, 1);
+            showStatus('Prodotto aggiunto al carrello.', 'success');
+        });
 
         grid.appendChild(card);
     });
 }
 
-async function handleBuy(productId, button) {
+async function initHome() {
+    await refreshCurrentUser();
+    renderHeader('home');
+
+    const user = getCurrentUser();
+    const quick = document.getElementById('quick-user');
+    if (quick && user) {
+        quick.textContent = `${user.name} (${user.role}) - crediti: ${user.credits}`;
+    }
+
     try {
-        setLoading(button, true);
-
-        const response = await fetch(`${API_URL}/buy`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ userId: DEFAULT_USER_ID, productId })
-        });
-
-        const data = await response.json();
-        if (!response.ok) {
-            throw new Error(data.error || 'Acquisto fallito.');
-        }
-
-        showMessage(data.message, 'success');
-        await loadUser();
-        await loadProducts();
+        await loadHomeProducts();
+        showStatus('Catalogo aggiornato.', 'success');
     } catch (error) {
-        showMessage(error.message, 'error');
-    } finally {
-        setLoading(button, false);
+        showStatus(error.message, 'error');
     }
 }
 
-async function initStore() {
-    try {
-        await loadUser();
-        await loadProducts();
-        showMessage('Store caricato con successo.', 'success');
-    } catch (error) {
-        showMessage(error.message, 'error');
-    }
-}
-
-initStore();
+initHome();

@@ -3,43 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Campus Market - Admin</title>
+    <title>TechVerse Market | Dashboard Admin</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <header class="topbar">
-        <h1>Campus Market Admin</h1>
-        <nav><a href="index.html">Vai allo Store</a></nav>
-    </header>
-
-    <main class="container admin-container">
-        <p id="admin-message" class="status-message info">Pannello amministrazione pronto.</p>
-
-        <section class="admin-card">
-            <h2>Assegna Crediti Bonus</h2>
-            <form id="add-credits-form" class="form-grid">
-                <input type="number" id="bonus-user-id" min="1" placeholder="User ID (es. 1)" required>
-                <input type="number" id="bonus-amount" min="1" placeholder="Crediti da aggiungere" required>
-                <button type="submit">Invia Crediti</button>
-            </form>
+    <div id="site-header"></div>
+    <main class="page">
+        <section class="panel">
+            <h2 style="margin-top:0;">Dashboard amministrazione</h2>
+            <div id="admin-metrics" class="metric-grid">
+                <article class="metric-card"><span>Utenti</span><strong id="metric-users">-</strong></article>
+                <article class="metric-card"><span>Prodotti</span><strong id="metric-products">-</strong></article>
+                <article class="metric-card"><span>Ordini</span><strong id="metric-orders">-</strong></article>
+                <article class="metric-card"><span>In attesa</span><strong id="metric-pending">-</strong></article>
+            </div>
+            <p id="status-box" class="status info">Controlli admin pronti.</p>
         </section>
 
-        <section class="admin-card">
-            <h2>Nuovo Prodotto</h2>
-            <form id="add-product-form" class="form-grid">
-                <input type="text" id="p-name" placeholder="Nome prodotto">
-                <input type="number" id="p-price" min="0" placeholder="Prezzo" required>
-                <input type="number" id="p-stock" min="0" placeholder="Quantità" required>
-                <button type="submit" class="btn-add">Aggiungi al Catalogo</button>
-            </form>
-        </section>
+        <div class="layout-two" style="margin-top:1rem;">
+            <section class="panel">
+                <h3>Catalogo</h3>
+                <form id="add-product-form" class="form-grid">
+                    <input class="input" id="p-name" type="text" placeholder="Nome prodotto" required>
+                    <input class="input" id="p-description" type="text" placeholder="Descrizione" required>
+                    <input class="input" id="p-category" type="text" placeholder="Categoria (es. Laptop)" required>
+                    <input class="input" id="p-image" type="url" placeholder="URL immagine">
+                    <input class="input" id="p-price" type="number" min="0" step="1" placeholder="Prezzo" required>
+                    <input class="input" id="p-stock" type="number" min="0" step="1" placeholder="Stock" required>
+                    <input class="input" id="p-discount" type="number" min="0" max="90" step="1" placeholder="Sconto %" value="0" required>
+                    <button class="btn" type="submit">Crea prodotto</button>
+                </form>
+                <div style="display:flex;gap:.6rem;flex-wrap:wrap;margin-top:.8rem;">
+                    <button id="import-tech-btn" class="btn ghost" type="button">Importa catalogo tech</button>
+                    <button id="refresh-products-btn" class="btn ghost" type="button">Aggiorna lista prodotti</button>
+                </div>
+                <div id="products-admin-list" class="order-list" style="margin-top:1rem;"></div>
+            </section>
 
-        <section class="admin-card">
-            <h2>Gestione Magazzino</h2>
-            <ul id="inventory-list"><li>Caricamento inventario...</li></ul>
+            <section class="panel">
+                <h3>Operazioni utenti</h3>
+                <form id="add-credits-form" class="form-grid">
+                    <input class="input" id="bonus-user-id" type="number" min="1" step="1" placeholder="User ID" required>
+                    <input class="input" id="bonus-amount" type="number" min="1" step="1" placeholder="Crediti bonus" required>
+                    <button class="btn" type="submit">Aggiungi crediti</button>
+                </form>
+            </section>
+        </div>
+
+        <section class="panel" style="margin-top:1rem;">
+            <h3>Gestione ordini</h3>
+            <div id="admin-orders-list" class="order-list"></div>
         </section>
     </main>
     <script src="config.js"></script>
+    <script src="common.js"></script>
     <script src="admin.js"></script>
 </body>
 </html>

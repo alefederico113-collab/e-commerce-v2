@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TechVerse Market | Ricerca</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="site-header"></div>
+  <main class="page">
+    <section class="panel">
+      <h2 style="font-family:Syne,sans-serif;margin-top:0;">Ricerca prodotti</h2>
+      <form id="search-form" style="display:grid;grid-template-columns:1fr auto;gap:.5rem;">
+        <input id="search-input" class="input" placeholder="Cerca laptop, cuffie, monitor...">
+        <button class="btn" type="submit">Cerca</button>
+      </form>
+      <p id="status-box" class="status info">Inserisci una ricerca per trovare prodotti.</p>
+      <div id="results-grid" class="grid-products"></div>
+    </section>
+  </main>
+  <script src="config.js"></script>
+  <script src="common.js"></script>
+  <script src="search.js"></script>
+</body>
+</html>
